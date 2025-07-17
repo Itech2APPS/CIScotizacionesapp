@@ -73,3 +73,7 @@ st.write("Sube un archivo PDF de cotizaciones y descarga automáticamente todos 
 uploaded_file = st.file_uploader("📁 Sube tu archivo PDF", type=["pdf"])
 if uploaded_file:
     procesar_pdf(uploaded_file)
+
+# 👣 Footer opcional
+st.markdown("<hr style='margin-top:40px;'>", unsafe_allow_html=True)
+st.markdown("Desarrollado por Ismael León – © 2025", unsafe_allow_html=True)
