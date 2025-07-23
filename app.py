@@ -60,7 +60,7 @@ def procesar_pdf(uploaded_file):
             st.download_button(
                 label="📦 Descargar todos los PDFs en ZIP",
                 data=f,
-                file_name="cotizaciones_separadas.zip",
+                file_name="cotizaciones.zip",
                 mime="application/zip"
             )
     else:
