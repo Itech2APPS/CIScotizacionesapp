@@ -1,4 +1,4 @@
-
+# - BY ISMAEL LEON
 import streamlit as st
 import fitz
 import os
@@ -10,7 +10,7 @@ from unidecode import unidecode
 def limpiar_texto(texto):
     return unidecode(texto).replace("'", "").strip().upper()
 
-# Buscar el mes que aparece después del bloque "N° Folio\nPlanilla"
+# Buscar el mes que aparece después del bloque "N° Folio\nPlanilla" - BY ISMAEL LEON
 def extraer_mes(texto):
     patron = re.compile(
         r"N° Folio\s*Planilla\s*.*?\n(?:.*?)\n((Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre))",
@@ -74,6 +74,6 @@ uploaded_file = st.file_uploader("📁 Sube tu archivo PDF", type=["pdf"])
 if uploaded_file:
     procesar_pdf(uploaded_file)
 
-# 👣 Footer opcional
+# 👣 Footer opcional - BY ISMAEL LEON
 st.markdown("<hr style='margin-top:40px;'>", unsafe_allow_html=True)
 st.markdown("Desarrollado por Ismael León – © 2025", unsafe_allow_html=True)
