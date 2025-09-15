@@ -111,3 +111,6 @@ echo "Hecho."
             file_name="COTIZACIONES_PROCESADAS.zip",
             mime="application/zip"
         )
+# 👣 Footer opcional - BY ISMAEL LEON
+st.markdown("<hr style='margin-top:40px;'>", unsafe_allow_html=True)
+st.markdown("Desarrollado por Ismael León – © 2025", unsafe_allow_html=True)
