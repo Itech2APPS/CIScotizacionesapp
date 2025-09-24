@@ -1,4 +1,3 @@
-# app.py
 import streamlit as st
 import fitz  # PyMuPDF
 import re
@@ -8,7 +7,7 @@ import tempfile
 from io import BytesIO
 
 st.set_page_config(page_title="Divisor de Cotizaciones PDF", page_icon="📑")
-st.title("📑 Divisor y Renombrador de Cotizaciones PDF (ZIP ordenado)")
+st.title("📑 Divisor y Renombrador de Cotizaciones PDF (mes desde tabla)")
 
 def sanitize_filename(s: str) -> str:
     s = s.strip()
@@ -16,6 +15,43 @@ def sanitize_filename(s: str) -> str:
     s = re.sub(r'[<>:"/\\|?*]', '', s)             # quitar chars inválidos en Windows
     s = re.sub(r'_+', '_', s)                      # colapsar underscores repetidos
     return s
+
+# Extrae el mes preferentemente desde la "tabla" (después de 'Mes y año' / 'Institución...')
+def extract_month_from_table(text: str) -> str:
+    meses_pattern = r"\b(Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre)\s+\d{4}\b"
+    # Intento buscar la cabecera de la tabla y localizar el mes-año después de ella
+    lowered = text.lower()
+    header_candidates = ["mes y año", "institución de previsión", "institucion de prevision", "institución de previsión mes y año", "institucion de prevision mes y año"]
+    start_idx = -1
+    for h in header_candidates:
+        idx = lowered.find(h)
+        if idx != -1:
+            start_idx = idx
+            break
+
+    if start_idx != -1:
+        # busco en la porción que sigue a la cabecera (por si hay múltiples meses en el documento)
+        segment = text[start_idx:start_idx + 8000]  # suficiente longitud para cubrir la tabla
+        m = re.search(meses_pattern, segment, re.IGNORECASE)
+        if m:
+            return m.group(1).capitalize()
+
+        # fallback: buscar mes+año después de la cabecera en todo el resto del texto
+        m2 = re.search(meses_pattern, text[start_idx:], re.IGNORECASE)
+        if m2:
+            return m2.group(1).capitalize()
+
+    # fallback general: primer mes+año que aparezca en la página
+    m3 = re.search(meses_pattern, text, re.IGNORECASE)
+    if m3:
+        return m3.group(1).capitalize()
+
+    # última alternativa: solo el primer mes que aparezca en la página
+    m4 = re.search(r"\b(Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre)\b", text, re.IGNORECASE)
+    if m4:
+        return m4.group(1).capitalize()
+
+    return "SINMES"
 
 uploaded_file = st.file_uploader("Sube el archivo PDF", type=["pdf"])
 
@@ -38,9 +74,8 @@ if uploaded_file:
             rut_match = re.search(r"Rut[:\s]*([\d\.]+-[0-9kK])", text, re.IGNORECASE)
             rut = rut_match.group(1).replace(".", "") if rut_match else f"SINRUT_{i}"
 
-            # Extraer mes (solo el nombre del mes)
-            mes_match = re.search(r"(Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Octubre|Noviembre|Diciembre)", text, re.IGNORECASE)
-            mes = mes_match.group(1).capitalize() if mes_match else "SINMES"
+            # Extraer mes desde la tabla (preferente)
+            mes = extract_month_from_table(text)
             mes = sanitize_filename(mes)
 
             # Crear PDF por página
@@ -111,6 +146,3 @@ echo "Hecho."
             file_name="COTIZACIONES_PROCESADAS.zip",
             mime="application/zip"
         )
-# 👣 Footer opcional - BY ISMAEL LEON
-st.markdown("<hr style='margin-top:40px;'>", unsafe_allow_html=True)
-st.markdown("Desarrollado por Ismael León – © 2025", unsafe_allow_html=True)
